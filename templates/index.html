@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Breast Cancer Prediction</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        text-align: center;
+        padding: 20px;
+      }
+      h2 {
+        color: #333;
+      }
+      .container {
+        width: 40%;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+      label {
+        font-weight: bold;
+        margin-top: 10px;
+        text-align: left;
+      }
+      input {
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 95%;
+      }
+      .btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px;
+        font-size: 16px;
+        margin-top: 15px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background-color: #218838;
+      }
+      .error {
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+    <script>
+      function validateForm(event) {
+        event.preventDefault(); // Prevent form from submitting
+        let formData = new FormData(document.getElementById("predictionForm"));
+
+        fetch("/predict", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.error) {
+              alert("⚠️ Error: " + data.error);
+            } else {
+              alert("✅ Prediction: The tumor is " + data.prediction);
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Breast Cancer Diagnosis Prediction</h2>
+      <p id="error-msg" class="error"></p>
+      <form id="predictionForm" onsubmit="validateForm(event)">
+        <label>Clump Thickness:</label>
+        <input type="text" name="Clump Thickness" />
+
+        <label>Uniformity of Cell Size:</label>
+        <input type="text" name="Uniformity of Cell Size" />
+
+        <label>Uniformity of Cell Shape:</label>
+        <input type="text" name="Uniformity of Cell Shape" />
+
+        <label>Marginal Adhesion:</label>
+        <input type="text" name="Marginal Adhesion" />
+
+        <label>Single Epithelial Cell Size:</label>
+        <input type="text" name="Single Epithelial Cell Size" />
+
+        <label>Bare Nuclei:</label>
+        <input type="text" name="Bare Nuclei" />
+
+        <label>Bland Chromatin:</label>
+        <input type="text" name="Bland Chromatin" />
+
+        <label>Normal Nucleoli:</label>
+        <input type="text" name="Normal Nucleoli" />
+
+        <label>Mitoses:</label>
+        <input type="text" name="Mitoses" />
+
+        <button type="submit" class="btn">Predict</button>
+      </form>
+    </div>
+  </body>
+</html>
