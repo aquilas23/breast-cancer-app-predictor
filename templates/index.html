@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -116,26 +117,163 @@
   </body>
 =======
 <html>
+=======
+<html lang="en">
+>>>>>>> f69dac6 (Update User Interface)
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Breast Cancer Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        h2 { color: #333; }
+        .container {
+            width: 40%;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        form { display: flex; flex-direction: column; }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: left;
+        }
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 95%;
+        }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover { background-color: #218838; }
+        .error { color: red; font-weight: bold; }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+        }
+        #popup button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #popup button:hover {
+            background-color: #c82333;
+        }
+    </style>
+    <script>
+        function validateForm(event) {
+            event.preventDefault();  // Prevent form from submitting
+            
+            let formData = new FormData(document.getElementById("predictionForm"));
+            let isValid = true;
+
+            // Validate input fields
+            formData.forEach((value, key) => {
+                if (value.trim() === "" || isNaN(value)) {
+                    document.getElementById("error-msg").innerText = "⚠️ Please enter valid numeric values in all fields!";
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) return;
+
+            document.getElementById("error-msg").innerText = ""; // Clear error
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("error-msg").innerText = "⚠️ " + data.error;
+                } else {
+                    document.getElementById("popup-message").innerText = "Prediction: The tumor is " + data.prediction;
+                    document.getElementById("popup").style.display = "block";
+                }
+            })
+            .catch(error => {
+                document.getElementById("error-msg").innerText = "⚠️ Error: Could not get prediction.";
+            });
+        }
+
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+    </script>
 </head>
 <body>
-    <h2>Enter Feature Values</h2>
-    <form action="/predict" method="post">
-        <input type="text" name="Clump_Thickness" required><br>
-        <input type="text" name="Uniformity_of_Cell_Size" required><br>
-        <input type="text" name="Uniformity_of_Cell_Shape" required><br>
-        <input type="text" name="Marginal_Adhesion" required><br>
-        <input type="text" name="Single_Epithelial_Cell_Size" required><br>
-        <input type="text" name="Bare_Nuclei" required><br>
-        <input type="text" name="Bland_Chromatin" required><br>
-        <input type="text" name="Normal_Nucleoli" required><br>
-        <input type="text" name="Mitoses" required><br>
-        <button type="submit">Predict</button>
-    </form>
-    {% if prediction_text %}
-        <h3>{{ prediction_text }}</h3>
-    {% endif %}
+    <div class="container">
+        <h2>Breast Cancer Diagnosis Prediction</h2>
+        <p id="error-msg" class="error"></p>
+        <form id="predictionForm" onsubmit="validateForm(event)">
+            <label>Clump Thickness:</label>
+            <input type="text" name="Clump_Thickness" required>
+
+            <label>Uniformity of Cell Size:</label>
+            <input type="text" name="Uniformity_of_Cell_Size" required>
+
+            <label>Uniformity of Cell Shape:</label>
+            <input type="text" name="Uniformity_of_Cell_Shape" required>
+
+            <label>Marginal Adhesion:</label>
+            <input type="text" name="Marginal_Adhesion" required>
+
+            <label>Single Epithelial Cell Size:</label>
+            <input type="text" name="Single_Epithelial_Cell_Size" required>
+
+            <label>Bare Nuclei:</label>
+            <input type="text" name="Bare_Nuclei" required>
+
+            <label>Bland Chromatin:</label>
+            <input type="text" name="Bland_Chromatin" required>
+
+            <label>Normal Nucleoli:</label>
+            <input type="text" name="Normal_Nucleoli" required>
+
+            <label>Mitoses:</label>
+            <input type="text" name="Mitoses" required>
+
+            <button type="submit" class="btn">Predict</button>
+        </form>
+    </div>
+
+    <!-- Popup Modal -->
+    <div id="popup">
+        <h3 id="popup-message"></h3>
+        <button onclick="closePopup()">Close</button>
+    </div>
 </body>
 >>>>>>> 387dfb0 (first commit)
 </html>

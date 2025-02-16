@@ -1,21 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Breast Cancer Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        h2 { color: #333; }
+        .container {
+            width: 40%;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        form { display: flex; flex-direction: column; }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: left;
+        }
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 95%;
+        }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover { background-color: #218838; }
+        .error { color: red; font-weight: bold; }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #222;
+        }
+    </style>
+    <script>
+        function validateForm(event) {
+            event.preventDefault();  // Prevent form from submitting
+            
+            let formData = new FormData(document.getElementById("predictionForm"));
+            let isValid = true;
+            
+            // Validate input fields
+            for (let value of formData.values()) {
+                if (value.trim() === "") {
+                    document.getElementById("error-msg").innerText = "⚠️ Please fill all fields!";
+                    isValid = false;
+                    break;
+                }
+            }
+            
+            if (!isValid) return;
+
+            document.getElementById("error-msg").innerText = ""; // Clear error
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("error-msg").innerText = "⚠️ Error: " + data.error;
+                    document.getElementById("result").innerText = "";
+                } else {
+                    document.getElementById("result").innerText = "✅ Prediction: The tumor is " + data.prediction;
+                }
+            })
+            .catch(error => {
+                document.getElementById("error-msg").innerText = "⚠️ Error: Could not get prediction.";
+            });
+        }
+    </script>
 </head>
 <body>
-    <h2>Breast Cancer Diagnosis Prediction</h2>
-    <form action="/predict" method="post">
-        <label>Clump Thickness:</label><input type="text" name="Clump Thickness"><br>
-        <label>Uniformity of Cell Size:</label><input type="text" name="Uniformity of Cell Size"><br>
-        <label>Uniformity of Cell Shape:</label><input type="text" name="Uniformity of Cell Shape"><br>
-        <label>Marginal Adhesion:</label><input type="text" name="Marginal Adhesion"><br>
-        <label>Single Epithelial Cell Size:</label><input type="text" name="Single Epithelial Cell Size"><br>
-        <label>Bare Nuclei:</label><input type="text" name="Bare Nuclei"><br>
-        <label>Bland Chromatin:</label><input type="text" name="Bland Chromatin"><br>
-        <label>Normal Nucleoli:</label><input type="text" name="Normal Nucleoli"><br>
-        <label>Mitoses:</label><input type="text" name="Mitoses"><br>
-        <input type="submit" value="Predict">
-    </form>
+    <div class="container">
+        <h2>Breast Cancer Diagnosis Prediction</h2>
+        <p id="error-msg" class="error"></p>
+        <form id="predictionForm" onsubmit="validateForm(event)">
+            <label>Clump Thickness:</label>
+            <input type="text" name="Clump_Thickness" required>
+
+            <label>Uniformity of Cell Size:</label>
+            <input type="text" name="Uniformity_of_Cell_Size" required>
+
+            <label>Uniformity of Cell Shape:</label>
+            <input type="text" name="Uniformity_of_Cell_Shape" required>
+
+            <label>Marginal Adhesion:</label>
+            <input type="text" name="Marginal_Adhesion" required>
+
+            <label>Single Epithelial Cell Size:</label>
+            <input type="text" name="Single_Epithelial_Cell_Size" required>
+
+            <label>Bare Nuclei:</label>
+            <input type="text" name="Bare_Nuclei" required>
+
+            <label>Bland Chromatin:</label>
+            <input type="text" name="Bland_Chromatin" required>
+
+            <label>Normal Nucleoli:</label>
+            <input type="text" name="Normal_Nucleoli" required>
+
+            <label>Mitoses:</label>
+            <input type="text" name="Mitoses" required>
+
+            <button type="submit" class="btn">Predict</button>
+        </form>
+        <p id="result"></p>
+    </div>
 </body>
 </html>
