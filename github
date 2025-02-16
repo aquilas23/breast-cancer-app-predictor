@@ -1,0 +1,5 @@
+git init
+heroku git:remote -a breast-cancer-predictor
+git add .
+git commit -m "Initial commit"
+git push heroku main
