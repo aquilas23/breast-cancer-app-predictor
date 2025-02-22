@@ -1,70 +1,160 @@
-# This file must be used with "source bin/activate" *from bash*
-# You cannot run it directly
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Cancer Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        h2 { color: #333; }
+        .container {
+            width: 40%;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        form { display: flex; flex-direction: column; }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: left;
+        }
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 95%;
+        }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover { background-color: #218838; }
+        .error { color: red; font-weight: bold; }
 
-deactivate () {
-    # reset old environment variables
-    if [ -n "${_OLD_VIRTUAL_PATH:-}" ] ; then
-        PATH="${_OLD_VIRTUAL_PATH:-}"
-        export PATH
-        unset _OLD_VIRTUAL_PATH
-    fi
-    if [ -n "${_OLD_VIRTUAL_PYTHONHOME:-}" ] ; then
-        PYTHONHOME="${_OLD_VIRTUAL_PYTHONHOME:-}"
-        export PYTHONHOME
-        unset _OLD_VIRTUAL_PYTHONHOME
-    fi
+        /* Popup Modal */
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+        }
+        #popup button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #popup button:hover {
+            background-color: #c82333;
+        }
+    </style>
+    <script>
+        function validateForm(event) {
+            event.preventDefault();  // Prevent form from submitting
+            
+            let formData = new FormData(document.getElementById("predictionForm"));
+            let isValid = true;
 
-    # Call hash to forget past commands. Without forgetting
-    # past commands the $PATH changes we made may not be respected
-    hash -r 2> /dev/null
+            // Validate input fields
+            formData.forEach((value, key) => {
+                if (value.trim() === "" || isNaN(value)) {
+                    document.getElementById("error-msg").innerText = "⚠️ Please enter valid numeric values in all fields!";
+                    isValid = false;
+                }
+            });
 
-    if [ -n "${_OLD_VIRTUAL_PS1:-}" ] ; then
-        PS1="${_OLD_VIRTUAL_PS1:-}"
-        export PS1
-        unset _OLD_VIRTUAL_PS1
-    fi
+            if (!isValid) return;
 
-    unset VIRTUAL_ENV
-    unset VIRTUAL_ENV_PROMPT
-    if [ ! "${1:-}" = "nondestructive" ] ; then
-    # Self destruct!
-        unset -f deactivate
-    fi
-}
+            document.getElementById("error-msg").innerText = ""; // Clear error
 
-# unset irrelevant variables
-deactivate nondestructive
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("error-msg").innerText = "⚠️ " + data.error;
+                } else {
+                    document.getElementById("popup-message").innerText = "Prediction: The tumor is " + data.prediction;
+                    document.getElementById("popup").style.display = "block";
+                }
+            })
+            .catch(error => {
+                document.getElementById("error-msg").innerText = "⚠️ Error: Could not get prediction.";
+            });
+        }
 
-# on Windows, a path can contain colons and backslashes and has to be converted:
-if [ "${OSTYPE:-}" = "cygwin" ] || [ "${OSTYPE:-}" = "msys" ] ; then
-    # transform D:\path\to\venv to /d/path/to/venv on MSYS
-    # and to /cygdrive/d/path/to/venv on Cygwin
-    export VIRTUAL_ENV=$(cygpath "/Users/aquilasaguiya/breast-cancer-predictor/venv")
-else
-    # use the path as-is
-    export VIRTUAL_ENV="/Users/aquilasaguiya/breast-cancer-predictor/venv"
-fi
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Breast Cancer Diagnosis Prediction</h2>
+        <p id="error-msg" class="error"></p>
+        <form id="predictionForm" onsubmit="validateForm(event)">
+            <label>Clump Thickness:</label>
+            <input type="text" name="Clump_Thickness" required>
 
-_OLD_VIRTUAL_PATH="$PATH"
-PATH="$VIRTUAL_ENV/bin:$PATH"
-export PATH
+            <label>Uniformity of Cell Size:</label>
+            <input type="text" name="Uniformity_of_Cell_Size" required>
 
-# unset PYTHONHOME if set
-# this will fail if PYTHONHOME is set to the empty string (which is bad anyway)
-# could use `if (set -u; : $PYTHONHOME) ;` in bash
-if [ -n "${PYTHONHOME:-}" ] ; then
-    _OLD_VIRTUAL_PYTHONHOME="${PYTHONHOME:-}"
-    unset PYTHONHOME
-fi
+            <label>Uniformity of Cell Shape:</label>
+            <input type="text" name="Uniformity_of_Cell_Shape" required>
 
-if [ -z "${VIRTUAL_ENV_DISABLE_PROMPT:-}" ] ; then
-    _OLD_VIRTUAL_PS1="${PS1:-}"
-    PS1="(venv) ${PS1:-}"
-    export PS1
-    VIRTUAL_ENV_PROMPT="(venv) "
-    export VIRTUAL_ENV_PROMPT
-fi
+            <label>Marginal Adhesion:</label>
+            <input type="text" name="Marginal_Adhesion" required>
 
-# Call hash to forget past commands. Without forgetting
-# past commands the $PATH changes we made may not be respected
-hash -r 2> /dev/null
+            <label>Single Epithelial Cell Size:</label>
+            <input type="text" name="Single_Epithelial_Cell_Size" required>
+
+            <label>Bare Nuclei:</label>
+            <input type="text" name="Bare_Nuclei" required>
+
+            <label>Bland Chromatin:</label>
+            <input type="text" name="Bland_Chromatin" required>
+
+            <label>Normal Nucleoli:</label>
+            <input type="text" name="Normal_Nucleoli" required>
+
+            <label>Mitoses:</label>
+            <input type="text" name="Mitoses" required>
+
+            <button type="submit" class="btn">Predict</button>
+        </form>
+    </div>
+
+    <!-- Popup Modal -->
+    <div id="popup">
+        <h3 id="popup-message"></h3>
+        <button onclick="closePopup()">Close</button>
+    </div>
+</body>
+</html>
