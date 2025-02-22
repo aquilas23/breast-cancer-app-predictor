@@ -23,6 +23,11 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt  # Install all dependencies
 
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          heroku --version  # Verify installation
+
       - name: Authenticate with Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
@@ -30,7 +35,7 @@ jobs:
           echo "machine api.heroku.com login=oauth password=$HEROKU_API_KEY" > ~/.netrc
           echo "machine git.heroku.com login=oauth password=$HEROKU_API_KEY" >> ~/.netrc
           chmod 600 ~/.netrc
-          heroku auth:whoami
+          heroku auth:whoami  # Verify authentication
 
       - name: Set Heroku Git Remote
         run: |
