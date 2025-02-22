@@ -37,9 +37,10 @@ jobs:
           chmod 600 ~/.netrc
           heroku auth:whoami  # Verify authentication
 
-      - name: Set Heroku Git Remote
+      - name: Add Heroku Git Remote
         run: |
-          heroku git:remote -a breast-cancer-app-predictor
+          heroku git:remote -a breast-cancer-app-predictor || true  # Avoid failure if remote already exists
+          git remote -v  # Verify remote setup
 
       - name: Deploy to Heroku
         env:
@@ -47,5 +48,6 @@ jobs:
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          git remote -v
+          git add .
+          git commit -m "GitHub Actions Deployment" || echo "No changes to commit"
           git push heroku main --force
