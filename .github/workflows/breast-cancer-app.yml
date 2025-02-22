@@ -1,0 +1,31 @@
+name: Deploy Breast Cancer App to Heroku
+
+on:
+  push:
+    branches:
+      - main  # Runs workflow on every push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Runs on Ubuntu OS
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set Up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"  # Match your Heroku runtime.txt version
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt  # Install all dependencies
+
+      - name: Deploy to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku git:remote -a breast-cancer-app
+          git push heroku main
