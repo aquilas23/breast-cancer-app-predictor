@@ -3,7 +3,7 @@ name: Deploy Breast Cancer App to Heroku
 on:
   push:
     branches:
-      - main
+      - main  # Trigger deployment on push to main branch
 
 jobs:
   deploy:
@@ -29,8 +29,14 @@ jobs:
 
       - name: Set Heroku Git Remote
         run: |
-          heroku git:remote -a breast-cancer-app-predictor || echo "Heroku remote already exists"
-          git remote -v  
+          git remote remove heroku || echo "No existing Heroku remote"
+          heroku git:remote -a breast-cancer-app-predictor
+          git remote -v  # Verify Heroku remote is set
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt  # Ensure dependencies are installed
 
       - name: Deploy to Heroku
         env:
@@ -40,4 +46,9 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add .
           git commit -m "GitHub Actions Deployment" || echo "No changes to commit"
-          git push heroku main --force
+          git push heroku main --force  # Push the latest version to Heroku
+
+      - name: Verify Deployment
+        run: |
+          heroku ps  # Check if the app is running
+          heroku open  # Open the deployed app URL (optional)
