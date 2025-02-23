@@ -29,8 +29,8 @@ jobs:
 
       - name: Set Heroku Git Remote
         run: |
-          heroku git:remote -a breast-cancer-app-predictor || true
-          git remote -v  # Verify remote setup
+          heroku git:remote -a breast-cancer-app-predictor || echo "Heroku remote already exists"
+          git remote -v  
 
       - name: Deploy to Heroku
         env:
