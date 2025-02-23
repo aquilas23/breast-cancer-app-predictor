@@ -3,29 +3,20 @@ name: Deploy Breast Cancer App to Heroku
 on:
   push:
     branches:
-      - main  # Runs workflow on every push to the main branch
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Runs on Ubuntu OS
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Set Up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"  # Match your Heroku runtime.txt version
-
-      - name: Install Dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt  # Install all dependencies
-
       - name: Install Heroku CLI
         run: |
-          curl https://cli-assets.heroku.com/install.sh | sh  # Install Heroku CLI
+          curl https://cli-assets.heroku.com/install.sh | sh
+          heroku --version
 
       - name: Authenticate with Heroku
         env:
@@ -33,11 +24,20 @@ jobs:
         run: |
           echo "machine api.heroku.com login=oauth password=$HEROKU_API_KEY" > ~/.netrc
           echo "machine git.heroku.com login=oauth password=$HEROKU_API_KEY" >> ~/.netrc
+          chmod 600 ~/.netrc
           heroku auth:whoami  # Verify authentication
+
+      - name: Set Heroku Git Remote
+        run: |
+          heroku git:remote -a breast-cancer-app-predictor || true
+          git remote -v  # Verify remote setup
 
       - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          heroku git:remote -a breast-cancer-app-predictor  # Set Heroku remote
-          git push heroku main --force  # Deploy the app
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add .
+          git commit -m "GitHub Actions Deployment" || echo "No changes to commit"
+          git push heroku main --force
